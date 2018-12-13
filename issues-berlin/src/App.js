@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import logo from './wwc-logo.png';
 import './App.css';
 import IssuesContainer from 'components/IssuesContainer/IssuesContainer';
+import Footer from 'components/Footer/Footer';
 
 class App extends Component {
   render() {
@@ -15,6 +16,7 @@ class App extends Component {
           </p>
         </header>
         <IssuesContainer />
+        <Footer />
       </div>
     );
   }
