@@ -1,7 +1,38 @@
 import React from 'react';
 
-const sendToLambda = ({ name, title, message }) => {
+const randomName = () => {
+  return 'whiny Whale';
+}
+
+const sendToLambda = (messageObj, onSuccess, onError) => {
+
+  const content = JSON.stringify(messageObj)
   const url = "https://3ahw3zl4t4.execute-api.eu-west-1.amazonaws.com/production/feedback"
+  fetch(url, {
+    method: 'POST',
+    body: content,
+    mode: 'no-cors',
+  }).then((res) => {
+    console.log('messsage sent:', res)
+    onSuccess(res)
+  }).catch( err => {
+    onError(err)
+  })
+}
+
+const validate = ({ name, title = '', text }) => {
+  console.log('validating', text)
+  const isValid = text.length > 10;
+  console.log('is valid?', isValid)
+  const messageObj = {
+    name: name ? name : randomName(),
+    title,
+    text,
+  }
+  return {
+    isValid,
+    messageObj
+  }
 }
 
 class FeedbackForm extends React.Component {
@@ -15,23 +46,40 @@ class FeedbackForm extends React.Component {
 
     this.state = {
       sending: false,
+      sent: false,
     }
   }
 
+  afterSubmit = (res) => {
+    this.setState(() => ({ sending: false, sent: true }))
+  }
+
+  onError = (err) => {
+    this.setState(() => ({ sending: false }))
+  }
+
   onSubmit = (event) => {
+    event.preventDefault()
     console.log('Got these values:', this.nameInput.current.value, this.titleInput.current.value, this.messageInput.current.value)
-    console.log('sending now')
-    sendToLambda({
+    const formData = {
       name: this.nameInput.current.value,
       title: this.titleInput.current.value,
-      message: this.messageInput.current.value,
-    })
+      text: this.messageInput.current.value,
+    }
+    const { isValid, messageObj } = validate(formData)
+
+    if (!isValid) return;
+
+    console.log('sending now')
+    sendToLambda(messageObj, this.afterSubmit, this.onError)
     this.setState({ sending: true });
-    setTimeout(() => { this.setState({ sending: false })}, 5000)
-    event.preventDefault()
   }
 
   render() {
+
+    if (this.state.sent) {
+      return <div>Thank you! Your feedback is appreciated!</div>
+    }
 
     if (this.state.sending) {
       return <div>Spinning</div>
@@ -50,7 +98,7 @@ class FeedbackForm extends React.Component {
           </label>
           <label>
             Your Message
-            <input type="text" name="message" ref={this.messageInput} />
+            <input type="textarea" name="message" ref={this.messageInput} />
           </label>
           <input type="submit" value="submit"/>
         </form>
