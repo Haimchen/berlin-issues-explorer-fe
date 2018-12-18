@@ -1,5 +1,7 @@
 import React from 'react';
 
+import './FeedbackForm.css';
+
 const randomName = () => {
   return 'whiny Whale';
 }
@@ -86,8 +88,8 @@ class FeedbackForm extends React.Component {
     }
 
     return (
-      <div>
-        <form onSubmit={this.onSubmit}>
+      <div className="feedback">
+        <form onSubmit={this.onSubmit} className="feedback-form">
           <label>
             Your Name
             <input type="text" name="name" ref={this.nameInput} />
@@ -98,7 +100,7 @@ class FeedbackForm extends React.Component {
           </label>
           <label>
             Your Message
-            <input type="textarea" name="message" ref={this.messageInput} />
+            <textarea name="message" ref={this.messageInput} />
           </label>
           <input type="submit" value="submit"/>
         </form>
